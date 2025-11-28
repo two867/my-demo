@@ -1,0 +1,33 @@
+name: CI (uv)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # 安装 uv（并可启用 cache）
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          # optional: pin a uv version
+          # version: '0.9.13'
+          enable-cache: true
+
+      # （可选）用 uv 安装 Python，或使用 setup-python；下面示例用 uv python install
+      - name: Set up Python (using uv)
+        run: uv python install
+
+      # 安装项目依赖（使用锁文件，包含 dev 依赖）
+      - name: Install dependencies
+        run: uv sync --locked --all-extras --dev
+
+      # 运行测试
+      - name: Run tests
+        run: uv run pytest -q
